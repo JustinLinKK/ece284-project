@@ -17,9 +17,9 @@ wire signed [bw+2:0] prod0;
 wire signed [bw+2:0] prod1;
 
 // a0 * b0
-assign prod0 = {1'b0, a0} * b0;
+assign prod0 = $signed({1'b0, a0}) * $signed(b0);
 // a1 * b1
-assign prod1 = {1'b0, a1} * b1;
+assign prod1 = $signed({1'b0, a1}) * $signed(b1);
 
 assign out = (mode ? prod0 : (prod0 << 2)) + prod1 + c;
 
