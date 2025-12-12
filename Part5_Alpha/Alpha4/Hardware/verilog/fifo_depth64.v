@@ -1,5 +1,3 @@
-// Created by prof. Mingu Kang @VVIP Lab in UCSD ECE department
-// Please do not spread this code without permission 
 module fifo_depth64 (rd_clk, wr_clk, in, out, rd, wr, o_full, o_empty, reset, rd_ptr_reset);
 
   parameter bw = 4;
@@ -11,10 +9,11 @@ module fifo_depth64 (rd_clk, wr_clk, in, out, rd, wr, o_full, o_empty, reset, rd
   input  rd;
   input  wr;
   input  reset;
+  input  [simd*bw-1:0] in;
   input  rd_ptr_reset;  // reset rd_ptr to 0 if High
+
   output o_full;
   output o_empty;
-  input  [simd*bw-1:0] in;
   output [simd*bw-1:0] out;
 
   wire [simd*bw-1:0] out_sub0_0;
@@ -93,34 +92,34 @@ module fifo_depth64 (rd_clk, wr_clk, in, out, rd, wr, o_full, o_empty, reset, rd
   reg [simd*bw-1:0] q62;
   reg [simd*bw-1:0] q63;
 
- assign empty = (wr_ptr == rd_ptr) ? 1'b1 : 1'b0 ;
+ assign empty = (wr_ptr == rd_ptr) ? 1'b1 : 1'b0;
  assign full  = ((wr_ptr[5:0] == rd_ptr[5:0]) && (wr_ptr[6] != rd_ptr[6])) ? 1'b1 : 1'b0;
 
  assign o_full  = full;
  assign o_empty = empty;
 
 
-  fifo_mux_16_1 #(.bw(bw), .simd(simd)) fifo_mux_16_1a (.in0(q0), .in1(q1), .in2(q2), .in3(q3), .in4(q4), .in5(q5), .in6(q6), .in7(q7),
+  fifo_mux_16_1 #(.bw(bw)) fifo_mux_16_1a (.in0(q0), .in1(q1), .in2(q2), .in3(q3), .in4(q4), .in5(q5), .in6(q6), .in7(q7),
                                                         .in8(q8), .in9(q9), .in10(q10), .in11(q11), .in12(q12), .in13(q13), .in14(q14), .in15(q15),
                         	                        .sel(rd_ptr[3:0]), .out(out_sub0_0));
 
-  fifo_mux_16_1 #(.bw(bw), .simd(simd)) fifo_mux_16_1b (.in0(q16), .in1(q17), .in2(q18), .in3(q19), .in4(q20), .in5(q21), .in6(q22), .in7(q23),
+  fifo_mux_16_1 #(.bw(bw)) fifo_mux_16_1b (.in0(q16), .in1(q17), .in2(q18), .in3(q19), .in4(q20), .in5(q21), .in6(q22), .in7(q23),
                                                         .in8(q24), .in9(q25), .in10(q26), .in11(q27), .in12(q28), .in13(q29), .in14(q30), .in15(q31),
                         	                        .sel(rd_ptr[3:0]), .out(out_sub0_1));
 
-  fifo_mux_16_1 #(.bw(bw), .simd(simd)) fifo_mux_16_1c (.in0(q32), .in1(q33), .in2(q34), .in3(q35), .in4(q36), .in5(q37), .in6(q38), .in7(q39),
+  fifo_mux_16_1 #(.bw(bw)) fifo_mux_16_1c (.in0(q32), .in1(q33), .in2(q34), .in3(q35), .in4(q36), .in5(q37), .in6(q38), .in7(q39),
                                                         .in8(q40), .in9(q41), .in10(q42), .in11(q43), .in12(q44), .in13(q45), .in14(q46), .in15(q47),
                         	                        .sel(rd_ptr[3:0]), .out(out_sub0_2));
 
-  fifo_mux_16_1 #(.bw(bw), .simd(simd)) fifo_mux_16_1d (.in0(q48), .in1(q49), .in2(q50), .in3(q51), .in4(q52), .in5(q53), .in6(q54), .in7(q55),
+  fifo_mux_16_1 #(.bw(bw)) fifo_mux_16_1d (.in0(q48), .in1(q49), .in2(q50), .in3(q51), .in4(q52), .in5(q53), .in6(q54), .in7(q55),
                                                         .in8(q56), .in9(q57), .in10(q58), .in11(q59), .in12(q60), .in13(q61), .in14(q62), .in15(q63),
                         	                        .sel(rd_ptr[3:0]), .out(out_sub0_3));
 
 
-  fifo_mux_2_1 #(.bw(simd*bw)) fifo_mux_2_1a   (.in0(out_sub0_0), .in1(out_sub0_1), .sel(rd_ptr[4]), .out(out_sub1_0));
-  fifo_mux_2_1 #(.bw(simd*bw)) fifo_mux_2_1b   (.in0(out_sub0_2), .in1(out_sub0_3), .sel(rd_ptr[4]), .out(out_sub1_1));
+  fifo_mux_2_1 #(.bw(bw)) fifo_mux_2_1a   (.in0(out_sub0_0), .in1(out_sub0_1), .sel(rd_ptr[4]), .out(out_sub1_0));
+  fifo_mux_2_1 #(.bw(bw)) fifo_mux_2_1b   (.in0(out_sub0_2), .in1(out_sub0_3), .sel(rd_ptr[4]), .out(out_sub1_1));
   
-  fifo_mux_2_1 #(.bw(simd*bw)) fifo_mux_2_1c   (.in0(out_sub1_0), .in1(out_sub1_1), .sel(rd_ptr[5]), .out(out));
+  fifo_mux_2_1 #(.bw(bw)) fifo_mux_2_1c   (.in0(out_sub1_0), .in1(out_sub1_1), .sel(rd_ptr[5]), .out(out));
 
 
 
