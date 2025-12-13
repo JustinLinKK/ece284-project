@@ -1,4 +1,4 @@
-module mac_array (clk, reset, out_s, in_w, in_n, inst_w, WeightOrOutput, valid, OS_out, IFIFO_loop);
+module mac_array (clk, reset, out_s, in_w, in_n, inst_w, WeightOrOutput, valid, OS_out, IFIFO_loop, in_w_zero, in_n_zero);
 
 parameter bw = 4;
 parameter psum_bw = 16;
@@ -10,6 +10,8 @@ input  [row*bw-1:0] in_w; // inst[1]:execute, inst[0]: kernel loading
 input  [1:0] inst_w;
 input  WeightOrOutput;
 input  [psum_bw*col-1:0] in_n;
+input  [row-1:0] in_w_zero;
+input  [col-1:0] in_n_zero;
 
 output [psum_bw*col-1:0] out_s;
 output [col-1:0] valid; // valid signal for OFIFO in WS mode
@@ -24,6 +26,9 @@ wire [row*col-1:0] valid_temp;
 wire [(row+1)*col*psum_bw-1:0] temp;
 wire [row*col-1:0] IFIFO_loop_temp;
 wire [row*col-1:0] OS_out_valid_temp;
+wire [(row+1)*col-1:0] temp_zero;
+
+assign temp_zero[col-1:0] = in_n_zero;
 
 reg [psum_bw-1:0] OS_out_col0;
 reg [psum_bw-1:0] OS_out_col1;
@@ -184,7 +189,10 @@ for (i=1; i < row+1 ; i=i+1) begin : row_num
     .WeightOrOutput(WeightOrOutput),
     .IFIFO_loop(IFIFO_loop_temp[col*i-1:col*(i-1)]),
     .OS_out_valid(OS_out_valid_temp[col*i-1:col*(i-1)]),
-    .OS_out(OS_out_temp[psum_bw*col*i-1:psum_bw*col*(i-1)])
+    .OS_out(OS_out_temp[psum_bw*col*i-1:psum_bw*col*(i-1)]),
+    .w_zero(in_w_zero[i-1]),
+    .n_zero(temp_zero[i*col-1:(i-1)*col]),
+    .s_zero(temp_zero[(i+1)*col-1:i*col])
     );
 end
 endgenerate

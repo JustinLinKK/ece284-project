@@ -1,4 +1,4 @@
-module mac_row (clk, out_s, in_w, in_n, valid, inst_w, reset, WeightOrOutput, OS_out, IFIFO_loop, OS_out_valid);
+module mac_row (clk, out_s, in_w, in_n, valid, inst_w, reset, WeightOrOutput, OS_out, IFIFO_loop, OS_out_valid, w_zero, n_zero, s_zero);
 
 parameter bw = 4;
 parameter psum_bw = 16;
@@ -9,18 +9,23 @@ input  [bw-1:0] in_w;
 input  [1:0] inst_w;
 input  [psum_bw*col-1:0] in_n;
 input  WeightOrOutput;
+input  w_zero;
+input  [col-1:0] n_zero;
 
 output [psum_bw*col-1:0] out_s;
 output [col-1:0] valid;
 output [col-1:0] IFIFO_loop;
 output [psum_bw*col-1:0] OS_out;
 output [col-1:0] OS_out_valid;
+output [col-1:0] s_zero;
 
 wire  [(col+1)*bw-1:0] temp;
 wire  [(col+1)*2-1:0]  temp_inst;
+wire  [col:0] temp_zero;
 
 assign temp[bw-1:0]   = in_w;
 assign temp_inst[1:0] = inst_w;
+assign temp_zero[0]   = w_zero;
 
 generate
 genvar i;
@@ -37,7 +42,11 @@ for (i = 1; i < col+1; i = i + 1) begin : col_num
     .WeightOrOutput(WeightOrOutput),
     .IFIFO_loop(IFIFO_loop[i-1]),
     .OS_out_valid(OS_out_valid[i-1]),
-    .OS_out(OS_out[psum_bw*i-1:psum_bw*(i-1)])
+    .OS_out(OS_out[psum_bw*i-1:psum_bw*(i-1)]),
+    .n_zero(n_zero[i-1]),
+    .w_zero(temp_zero[i-1]),
+    .zero_s(s_zero[i-1]),
+    .zero_e(temp_zero[i])
   );
   assign valid[i-1] = temp_inst[2*(i+1)-1];
 end

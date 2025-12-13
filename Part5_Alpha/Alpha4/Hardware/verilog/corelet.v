@@ -71,6 +71,19 @@ module corelet (
 
     assign w_array_in_n = WeightOrOutput ? w_ififo_pad : {col*psum_bw{1'b0}};
 
+    wire [row-1:0] w_zero_vec;
+    wire [col-1:0] n_zero_vec;
+
+    genvar i;
+    generate
+        for (i=0; i<row; i=i+1) begin : gen_w_zero
+            assign w_zero_vec[i] = (w_l0_to_array[(i+1)*bw-1 : i*bw] == 0);
+        end
+        for (i=0; i<col; i=i+1) begin : gen_n_zero
+            assign n_zero_vec[i] = (w_array_in_n[(i+1)*psum_bw-1 : i*psum_bw] == 0);
+        end
+    endgenerate
+
     l0 #(
         .row(row),
         .bw(bw)
@@ -101,7 +114,9 @@ module corelet (
         .WeightOrOutput(WeightOrOutput),
         .OS_out(w_array_os),
         .IFIFO_loop(w_ififo_loop),
-        .valid(w_mac_valid)
+        .valid(w_mac_valid),
+        .in_w_zero(w_zero_vec),
+        .in_n_zero(n_zero_vec)
     );
 
     ofifo #(
