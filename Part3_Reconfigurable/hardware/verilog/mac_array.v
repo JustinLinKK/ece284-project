@@ -1,4 +1,4 @@
-module mac_array (clk, reset, out_s, in_w, in_n, inst_w, WeightOrOutput, valid, OS_out, IFIFO_loop);
+module mac_array (clk, reset, out_s, in_w, in_n, inst_w, mode, valid, OS_out, loop);
 
 parameter bw = 4;
 parameter psum_bw = 16;
@@ -6,23 +6,23 @@ parameter col = 8;
 parameter row = 8;
 
 input  clk, reset;
-input  [row*bw-1:0] in_w; // inst[1]:execute, inst[0]: kernel loading
+input  [row*bw-1:0] in_w; 
 input  [1:0] inst_w;
-input  WeightOrOutput;
+input  mode;
 input  [psum_bw*col-1:0] in_n;
 
 output [psum_bw*col-1:0] out_s;
-output [col-1:0] valid; // valid signal for OFIFO in WS mode
+output [col-1:0] valid; 
 output [psum_bw*col-1:0] OS_out;
-output [col-1:0] IFIFO_loop;
+output [col-1:0] loop;
 
 reg [row*2-1:0] inst_w_temp;
 
 wire [psum_bw*col*row-1:0] OS_out_temp;
-reg [col-1:0] OS_out_valid;  // valid signal for OFIFO in OS mode
+reg [col-1:0] OS_out_valid;  
 wire [row*col-1:0] valid_temp;
 wire [(row+1)*col*psum_bw-1:0] temp;
-wire [row*col-1:0] IFIFO_loop_temp;
+wire [row*col-1:0] loop_temp;
 wire [row*col-1:0] OS_out_valid_temp;
 
 reg [psum_bw-1:0] OS_out_col0;
@@ -53,26 +53,13 @@ assign OS_out_valid_col4 = {OS_out_valid_temp[60], OS_out_valid_temp[52], OS_out
 assign OS_out_valid_col5 = {OS_out_valid_temp[61], OS_out_valid_temp[53], OS_out_valid_temp[45], OS_out_valid_temp[37], OS_out_valid_temp[29], OS_out_valid_temp[21], OS_out_valid_temp[13], OS_out_valid_temp[5]};
 assign OS_out_valid_col6 = {OS_out_valid_temp[62], OS_out_valid_temp[54], OS_out_valid_temp[46], OS_out_valid_temp[38], OS_out_valid_temp[30], OS_out_valid_temp[22], OS_out_valid_temp[14], OS_out_valid_temp[6]};
 assign OS_out_valid_col7 = {OS_out_valid_temp[63], OS_out_valid_temp[55], OS_out_valid_temp[47], OS_out_valid_temp[39], OS_out_valid_temp[31], OS_out_valid_temp[23], OS_out_valid_temp[15], OS_out_valid_temp[7]};
-// assign OS_out_valid = OS_out_valid_temp[col*1-1:col*0] | OS_out_valid_temp[col*2-1:col*1-1] | OS_out_valid_temp[col*3-1:col*2-1] | OS_out_valid_temp[col*4-1:col*3-1] | OS_out_valid_temp[col*5-1:col*4-1] | OS_out_valid_temp[col*6-1:col*5-1] | OS_out_valid_temp[col*7-1:col*6-1] | OS_out_valid_temp[col*8-1:col*7-1];
 
 
-assign valid = WeightOrOutput? OS_out_valid : valid_temp[col*row-1:col*row-8];
+
+assign valid = mode? OS_out_valid : valid_temp[col*row-1:col*row-8];
 assign temp[psum_bw*col-1:0] = in_n;
 assign out_s = temp[psum_bw*col*9-1:psum_bw*col*8];
-assign IFIFO_loop = IFIFO_loop_temp[col-1:0]; // only the first row is pop out to IFIFO as the loop signal
-
-
-// case(OS_out_valid_col0)
-//   8'b00000001: OS_out_col0 = OS_out_temp[15:0];
-//   8'b00000010: OS_out_col0 = OS_out_temp[143:128];
-//   8'b00000100: OS_out_col0 = OS_out_temp[271:256];
-//   8'b00001000: OS_out_col0 = OS_out_temp[399:384];
-//   8'b00010000: OS_out_col0 = OS_out_temp[527:512];
-//   8'b00100000: OS_out_col0 = OS_out_temp[655:640];
-//   8'b01000000: OS_out_col0 = OS_out_temp[783:768];
-//   8'b10000000: OS_out_col0 = OS_out_temp[911:896];
-// endcase
-
+assign loop = loop_temp[col-1:0]; 
 
 
 always @(posedge clk) begin
@@ -181,8 +168,8 @@ for (i=1; i < row+1 ; i=i+1) begin : row_num
     .valid(valid_temp[col*i-1:col*(i-1)]),
     .inst_w(inst_w_temp[2*i-1:2*(i-1)]),
     .reset(reset),
-    .WeightOrOutput(WeightOrOutput),
-    .IFIFO_loop(IFIFO_loop_temp[col*i-1:col*(i-1)]),
+    .mode(mode),
+    .loop(loop_temp[col*i-1:col*(i-1)]),
     .OS_out_valid(OS_out_valid_temp[col*i-1:col*(i-1)]),
     .OS_out(OS_out_temp[psum_bw*col*i-1:psum_bw*col*(i-1)])
     );

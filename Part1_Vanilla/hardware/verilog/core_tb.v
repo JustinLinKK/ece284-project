@@ -407,9 +407,8 @@ initial begin
             
         #0.5 clk = 1'b0;
         if (j<len_kij) begin
-            CEN_pmem = 0;   // PMEM read enable, psum move from PMEM to SFP
+            CEN_pmem = 0;
             WEN_pmem = 1;
-            //calculate the address of data that conv needs
             A_pmem = (i / o_ni_dim) * a_pad_ni_dim + (i % o_ni_dim) + (j / ki_dim) * a_pad_ni_dim + (j % ki_dim) + (j * len_nij);
 
         end
