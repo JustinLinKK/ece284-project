@@ -1,3 +1,5 @@
+// Created by prof. Mingu Kang @VVIP Lab in UCSD ECE department
+// Please do not spread this code without permission 
 module fifo_depth8 (rd_clk, wr_clk, in, out, rd, wr, o_full, o_empty, reset);
 
   parameter bw = 4;
