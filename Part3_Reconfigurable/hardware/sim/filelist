@@ -15,4 +15,4 @@
 ../verilog/sfu.v
 ../verilog/corelet.v
 ../verilog/core.v
-../verilog/core_tb_weight.v
+../verilog/core_tb_output.v

@@ -184,7 +184,6 @@ module core_tb_output();
 
         w_file = $fopen(w_file_name, "r");
 
-        
 
         A_xmem = 11'b10000000000;
 
@@ -237,12 +236,6 @@ module core_tb_output();
             #0.5 clk = 1'b0;
             #0.5 clk = 1'b1;
         end
-
-        
-
-
-
-
         
         x_file_name = "../datafiles/mode1/activation_os_3ic_tile0.txt";
         x_file = $fopen(x_file_name, "r");
@@ -265,8 +258,6 @@ module core_tb_output();
         $fclose(x_file);
         
 
-
-        
         A_xmem   = 0;
         #0.5 clk = 1'b0;
         WEN_xmem = 1;
@@ -294,16 +285,11 @@ module core_tb_output();
             #0.5 clk = 1'b1;
         end
         
-
-
         
         #0.5 clk = 1'b0;
         l0_rd    = 1;
         ififo_rd = 1;
         #0.5 clk = 1'b1;
-
-
-
 
         for (t = 0; t<len_kij*3+row+col; t = t+1) begin   
             
@@ -319,16 +305,10 @@ module core_tb_output();
         #0.5 clk = 1'b1;            
         
 
-
-
-        
-
         #0.5 clk = 1'b0; reset = 0;
         #0.5 clk = 1'b1;
         #0.5 clk = 1'b0; reset = 0;
         #0.5 clk = 1'b1;
-
-    
 
         
         #0.5 clk = 1'b0;
