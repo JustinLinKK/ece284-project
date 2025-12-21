@@ -211,3 +211,6 @@ __marimo__/
 
 # compiled files
 compiled
+
+# model training checkpoints
+results/
